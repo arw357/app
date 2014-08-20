@@ -1,6 +1,9 @@
 package app.sunrise.com.example.ciordache.sunrise;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -58,6 +61,24 @@ public class MainActivity extends ActionBarActivity {
             startActivity(i);
             return true;
         }
+        if (id == R.id.action_view_location) {
+
+
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            String location = prefs.getString(getResources().getString(R.string.pref_location_key),"Bucharest");
+            Uri uri =  Uri.parse("geo:0,0?q="+Uri.encode(location));
+
+            Intent i = new Intent(Intent.ACTION_VIEW);
+            i.setData(uri);
+            if(i.resolveActivity(getPackageManager())!=null) {
+                startActivity(i);
+            } else {
+                return false;
+            }
+            return true;
+        }
+
+
         return super.onOptionsItemSelected(item);
     }
 

@@ -1,10 +1,13 @@
 package app.sunrise.com.example.ciordache.sunrise;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.CamcorderProfile;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -57,22 +60,22 @@ import java.util.Date;
                                  Bundle savedInstanceState) {
 
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            forecast.add("Today sunny - 88/63");
-            forecast.add("Today sunny - 83/63");
-            forecast.add("Today sunny - 84/63");
-            forecast.add("Today sunny - 85/63");
-            forecast.add("Today sunny - 86/63");
-            forecast.add("Today sunny - 87/63");
+
+            SharedPreferences prefs  = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            String location = prefs.getString(getResources().getString(R.string.pref_location_key),getResources().getString(R.string.pref_location_default));
 
             uriBuilder = new Uri.Builder();
 
             uriBuilder.scheme("http").authority("api.openweathermap.org").appendPath("data").appendPath("2.5").appendPath("forecast");
-            uriBuilder.appendPath("daily").appendQueryParameter("q","94043").appendQueryParameter("units","metric").appendQueryParameter("cnt","7");
-            uriBuilder.appendQueryParameter("mode","json");
+            uriBuilder.appendPath("daily").appendQueryParameter("q", location).appendQueryParameter("units", "metric").appendQueryParameter("cnt", "7");
+            uriBuilder.appendQueryParameter("mode", "json");
 
 
             GetJsonBack getJsonBack = new GetJsonBack() ;
-            getJsonBack.execute(new String[] {"location"});
+
+
+
+            getJsonBack.execute(new String[] {location});
 
 
              arrayAdapter = new ArrayAdapter<String>(getActivity(),R.layout.list_item_forecast,R.id.list_item_forecast_textview,forecast);
@@ -81,11 +84,10 @@ import java.util.Date;
             ll.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    Toast.makeText(getActivity(),"position" + i  + "position 2" + l + "view" +((TextView)view).getText() ,Toast.LENGTH_SHORT).show();
-
                     Intent intent = new Intent(getActivity(),DetailActivity.class);
                     Bundle b  = new Bundle();
-                    b.putString("detail",((TextView) view).getText().toString());
+                    b.putString("forecast",((TextView) view).getText().toString());
+                    b.putString("detail1","andrei");
                     intent.putExtras(b);
 
                     startActivity(intent);
@@ -121,9 +123,9 @@ import java.util.Date;
             protected void onPostExecute(String[] strings) {
                 forecast = new ArrayList<String>( Arrays.asList(strings));
                 if(arrayAdapter!=null ) {
-
                     arrayAdapter.clear();
                     arrayAdapter.addAll(forecast);
+                    arrayAdapter.notifyDataSetChanged();
                 }
             }
 
@@ -143,8 +145,16 @@ import java.util.Date;
              */
             private String formatHighLows(double high, double low) {
                 // For presentation, assume the user doesn't care about tenths of a degree.
-                long roundedHigh = Math.round(high);
-                long roundedLow = Math.round(low);
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                String temperature  = prefs.getString("temp","c");
+                long roundedHigh,roundedLow;
+                if (temperature.equals("c")) {
+                     roundedHigh = Math.round(high);
+                    roundedLow = Math.round(low);
+                } else {
+                    roundedHigh =Math.round((9/5)*high+32);
+                    roundedLow = Math.round((9/5)*low+32);
+                }
 
                 String highLowStr = roundedHigh + "/" + roundedLow;
                 return highLowStr;
@@ -280,8 +290,13 @@ import java.util.Date;
         if(id== R.id.action_refresh) {
 
             GetJsonBack getJsonBack = new GetJsonBack() ;
+            SharedPreferences prefs  = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            String location = prefs.getString(getResources().getString(R.string.pref_location_key),getResources().getString(R.string.pref_location_default));
+            uriBuilder.clearQuery();
+            uriBuilder.appendQueryParameter("q", location).appendQueryParameter("units","metric").appendQueryParameter("cnt","7");
+            uriBuilder.appendQueryParameter("mode","json");
 
-            getJsonBack.execute(new String[] {""});
+            getJsonBack.execute(new String[] {location});
             return true;
         }
 

@@ -7,5 +7,21 @@
     <string name="refresh">Refresh</string>
     <string name="title_activity_detail">DetailActivity</string>
     <string name="title_activity_settings">SettingsActivity</string>
+    <string name="pref_location_label">Location</string>
+    <string name="pref_location_key" translatable="false">location</string>
+    <string name="pref_location_default" translatable="false">94043</string>
+    <string name="pref_temperature_title" translatable="false">Temperature select</string>
+    <string name="pref_temperature_key" translatable="false">temp</string>
+    <string name="action_location" >View location</string>
+
+    <string-array name="pref_temperature_values">
+        <item>c</item>
+        <item>f</item>
+    </string-array>
+    <string-array name="pref_temperature_value_entries">
+        <item>Celsius</item>
+        <item>Fahrenheit</item>
+    </string-array>
+
 
 </resources>
